@@ -1,0 +1,137 @@
+:root, :root.light {
+
+    /*--header_clr: #d9ffc8; !*  footer_clr  *!*/
+    --header_clr: white; /*  footer_clr  */
+    --headerButtonHover_clr: #214B84;
+    --dropdown_clr: #f9f9f9;
+    --dropdownHover_clr: #dddddd;
+    --dropdownFont_clr: black;
+
+    /*--BG_clr: #f0f0f0;*/
+    --BG_clr: white; /* better this way */
+    --mainContentBlock_clr: white;
+    --mainCBlockBorder_clr: gray;
+
+    --border_clr: gray;
+    --boxShadow_clr: rgba(0,0,0,0.2);
+
+    --inputBG_clr: inherit;
+    --Btn_clr: var(--header_clr);
+    --input_hover_clr:#f5f5f5;
+
+    --listRecordHover_clr: var(--dropdownHover_clr);
+
+    --text_clr: black;
+}
+
+:root.dark {
+    --header_clr: #2a2a2a; /*  footer_clr  */
+    --headerButtonHover_clr: #202020;
+    --dropdown_clr: #030303;
+    --dropdownHover_clr: #060606;
+    --dropdownFont_clr: white;
+
+    --BG_clr: black;
+    --mainContentBlock_clr: #2a2a2a;
+    --mainCBlockBorder_clr: gray;
+
+    --border_clr: gray;
+    --boxShadow_clr: rgba(255, 255, 255, 0.2);
+
+    --inputBG_clr: #202020;
+    --Btn_clr: var(--header_clr);
+    --input_hover_clr: #2f2f2f;
+
+    --listRecordHover_clr: var(--headerButtonHover_clr);
+
+    --text_clr: white;
+}
+
+
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100dvh;
+    width: 100dvw;
+    margin: 0;
+    background-color: var(--BG_clr);
+}
+
+header {
+    border-bottom: 1px solid var(--border_clr);
+    background-color: var(--header_clr);
+    color: var(--text_clr);
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px 0 20px;
+}
+
+header #theme_toggle {
+    align-items: center;
+    justify-content: center;
+    color: var(--dropdownFont_clr);
+    font-size: 2em;
+}
+:root.dark header #theme_toggle #theme_toggle_span {
+    padding-right: 3px;
+    padding-bottom: 5px;
+}
+
+footer {
+    border-top: 1px solid var(--border_clr);
+    background-color: var(--header_clr);
+    color: var(--text_clr);
+    display: flex;
+    justify-content: center;
+    padding: 10px;
+}
+
+main {
+    display: flex;
+    flex-direction: column;
+    align-self: center;
+    align-items: center;
+    justify-content: center;
+    /*border: 2px solid var(--mainCBlockBorder_clr);*/
+    /*background-color: var(--mainContentBlock_clr);*/
+}
+
+
+section.single {
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    color: var(--text_clr);
+    font-size: 1em;
+}
+
+section.single h2 {
+    align-self: center;
+    font-size: 3em;
+}
+
+section input {
+    color: inherit;
+    border: 1px solid var(--border_clr);
+    background-color: var(--inputBG_clr);
+    font-size: inherit;
+}
+
+section label {
+    font-size: inherit;
+}
+
+#submit_player_name {
+    align-self: flex-end;
+    margin-top: 5px;
+    padding: 5px;
+}
+
+section input:hover {
+    background-color: var(--input_hover_clr);
+}

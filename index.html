@@ -2,9 +2,157 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Wordle</title>
+
+    <link rel="stylesheet" href="/css/style.css">
+    
 </head>
 <body>
 
+
+<header>
+    <div class="title">
+        <h1>Wordle Game</h1>
+    </div>
+
+    <div id="theme_toggle">
+        <span id="theme_toggle_span"></span>
+    </div>
+    <script src="./modules/color_scheme_toggler.js"></script>
+</header>
+
+<main>
+
+    </main>
+
+<footer>
+    <span class="copyright"><a target="mailto:burlejan@fel.cvut.cz">Jan Burle &copy;2024</a></span>
+</footer>
+
+<script>
+
+
+    // import {page_generator} from "./modules/page_module";
+    // import {game_logic} from "./modules/word_module";
+
+    class page_generator {
+
+        constructor() {
+            this.main = document.querySelector('main');
+
+        }
+
+        renderWelcomePage() {
+            this.main.innerHTML =
+                `<section class="single">
+                <h2>Wordle</h2>
+                <label for="player_name">Your name:</label>
+                <input type="text" id="player_name" maxlength="5" placeholder="Enter your guess">
+                <input type="submit" value="Start game" id="submit_player_name">
+            </section>`;
+        }
+
+        renderGamePage() {
+            return;
+        }
+
+        render
+
+        renderScorePage() {
+            return;
+        }
+    }
+
+
+    // const page_generator = new page_generator();
+    // const game_logic = new game_logic();
+
+    const page_gen = new page_generator();
+    page_gen.renderWelcomePage();
+
+
+
+
+
+    // import { checkGuess, getGameState } from './modules/word_module.js';
+    //
+    // // Example usage in the UI
+    // document.getElementById("submitBtn").addEventListener("click", function() {
+    //     const guessInput = document.getElementById("guessInput").value;
+    //     const result = checkGuess(guessInput);
+    //
+    //     document.getElementById("resultMessage").textContent = result.message;
+    //
+    //     if (result.isGameOver) {
+    //         // Game over logic (e.g., display the secret word)
+    //         const gameState = getGameState();
+    //         document.getElementById("wordDisplay").textContent = gameState.guessedWord;
+    //         document.getElementById("attemptsLeftDisplay").textContent = "Attempts Left: " + gameState.attemptsLeft;
+    //     }
+    // });
+
+
+    // // List of possible words
+    // const words = ["apple", "orange", "lemon", "melon", "banana", "grape", "peach", "cherry", "plum", "kiwi"];
+    //
+    // // Pick a random word from the list
+    // let secretWord = words[Math.floor(Math.random() * words.length)];
+    // let attemptsLeft = 6;
+    // let guessedWord = "_____"; // Display placeholder
+    //
+    // // Display initial state
+    // displayWord();
+    //
+    // function displayWord() {
+    //     document.getElementById("wordDisplay").textContent = guessedWord;
+    // }
+    //
+    // function checkGuess() {
+    //     const guess = document.getElementById("guessInput").value.toLowerCase().trim();
+    //     document.getElementById("guessInput").value = ""; // Clear input field
+    //
+    //     if (guess.length !== 5 || !/^[a-z]+$/.test(guess)) {
+    //         alert("Please enter a valid 5-letter word.");
+    //         return;
+    //     }
+    //
+    //     if (attemptsLeft > 0) {
+    //         attemptsLeft--;
+    //
+    //         // Check if the guessed word matches the secret word
+    //         if (guess === secretWord) {
+    //             guessedWord = secretWord;
+    //             displayWord();
+    //             showResultMessage("Congratulations! You guessed the word.");
+    //         } else {
+    //             // Evaluate the guessed word and update display
+    //             let newGuessedWord = "";
+    //             for (let i = 0; i < 5; i++) {
+    //                 if (secretWord[i] === guess[i]) {
+    //                     newGuessedWord += guess[i];
+    //                 } else if (secretWord.includes(guess[i])) {
+    //                     newGuessedWord += "?";
+    //                 } else {
+    //                     newGuessedWord += "_";
+    //                 }
+    //             }
+    //             guessedWord = newGuessedWord;
+    //             displayWord();
+    //
+    //             if (attemptsLeft === 0) {
+    //                 showResultMessage("Out of attempts! The word was: " + secretWord);
+    //             } else {
+    //                 showResultMessage("Incorrect guess. Attempts left: " + attemptsLeft);
+    //             }
+    //         }
+    //     }
+    // }
+    //
+    // function showResultMessage(message) {
+    //     document.getElementById("resultMessage").textContent = message;
+    // }
+</script>
 </body>
 </html>

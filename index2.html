@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wordle Game</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="game-container">
+    <div class="guesses-container" id="guesses-container">
+        <!-- Guess attempts will be added dynamically here -->
+    </div>
+    <div class="keyboard-container" id="keyboard-container">
+        <!-- Keyboard buttons will be added dynamically here -->
+    </div>
+</div>
+<script>
+    // Define the word to guess (you can change this to any word)
+    const secretWord = "hello";
+    const wordLength = secretWord.length;
+
+    // Initialize variables
+    let guesses = [];
+    let remainingAttempts = 6;
+
+    // Get containers from the DOM
+    const guessesContainer = document.getElementById('guesses-container');
+    const keyboardContainer = document.getElementById('keyboard-container');
+
+    // Function to render the game
+    function renderGame() {
+        // Clear previous content
+        guessesContainer.innerHTML = '';
+        keyboardContainer.innerHTML = '';
+
+        // Render guess attempts
+        guesses.forEach(guess => {
+            const guessDiv = document.createElement('div');
+            guessDiv.textContent = guess;
+            guessDiv.className = 'guess';
+            guessesContainer.appendChild(guessDiv);
+        });
+
+        // Render keyboard buttons
+        const alphabet = 'abcdefghijklmnopqrstuvwxyz';
+        for (let char of alphabet) {
+            const button = document.createElement('button');
+            button.textContent = char;
+            button.className = 'button';
+            button.addEventListener('click', () => handleGuess(char));
+            keyboardContainer.appendChild(button);
+        }
+    }
+
+    // Function to handle a letter guess
+    function handleGuess(letter) {
+        // Check if letter is in the secret word
+        if (secretWord.includes(letter)) {
+            guesses.push(letter);
+        } else {
+            remainingAttempts--;
+        }
+
+        // Check if player won or lost
+        if (guesses.length === wordLength) {
+            alert('Congratulations! You guessed the word.');
+            resetGame();
+        } else if (remainingAttempts === 0) {
+            alert('Game over! The word was: ' + secretWord);
+            resetGame();
+        }
+
+        // Re-render the game
+        renderGame();
+    }
+
+    // Function to reset the game
+    function resetGame() {
+        guesses = [];
+        remainingAttempts = 6;
+        renderGame();
+    }
+
+    // Initialize the game
+    renderGame();
+
+</script>
+</body>
+</html>
