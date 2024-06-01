@@ -13,6 +13,14 @@ export class game_logic {
         this.words = ["apple", "lemon", "melon", "grape", "peach", "beach"];
         return;
     }
+
+    
+
+    checkWord(quess) {
+        if (quess == this.secret) {
+            
+        }
+    }
 }
 
 

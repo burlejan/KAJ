@@ -38,30 +38,111 @@
     // import {game_logic} from "./modules/word_module";
 
     class page_generator {
-
         constructor() {
             this.main = document.querySelector('main');
-
+            this.currentPlayerName = '';
+            this.isGame = false;
+            window.onpopstate = this.handlePopState.bind(this); // Listen to popstate event for history navigation
+            this.renderWelcomePage();
+            this.addKeyUpListener();
         }
 
         renderWelcomePage() {
-            this.main.innerHTML =
-                `<section class="single">
+            // Set history state for the welcome page
+            history.pushState({ page: 'welcome' }, 'Wordle - Welcome', '/');
+
+            this.main.innerHTML = `
+            <section class="single">
                 <h2>Wordle</h2>
-                <label for="player_name">Your name:</label>
-                <input type="text" id="player_name" maxlength="5" placeholder="Enter your guess">
+                <label for="player_name">Player name:</label>
+                <input type="text" id="player_name" maxlength="5" placeholder="Enter your name">
                 <input type="submit" value="Start game" id="submit_player_name">
             </section>`;
+
+            const submitButton = document.querySelector('#submit_player_name');
+            const playerNameInput = document.querySelector('#player_name');
+
+            submitButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                const playerName = playerNameInput.value.trim();
+                if (playerName !== '') {
+                    this.currentPlayerName = playerName;
+                    this.renderGamePage();
+                }
+            });
         }
 
         renderGamePage() {
-            return;
+            // Set history state for the game page
+            history.pushState({ page: 'game' }, 'Wordle - Game', '/game');
+
+            this.isGame = true;
+            this.main.innerHTML = `
+            <section class="single" id="board">
+            </section>
+            <section class="single" id="keyboard">
+            </section>`;
+
+            this.renderBoardAndKeyboard();
         }
 
-        render
+        renderBoardAndKeyboard() {
+            this.renderBoard();
+            this.renderKeyboard();
+        }
+
+        renderBoard() {
+            // Rerender game board with the new word
+            if (this.isGame) {
+                const gameBoard = document.querySelector('#board');
+
+                gameBoard.innerHTML = '<p>Rerendered board with new word</p>';
+            }
+        }
+
+        renderKeyboard() {
+            if (this.isGame) {
+                const keyboard = document.querySelector('#keyboard');
+
+                keyboard.innerHTML = `
+                    <div class="keyboard"><div class="Game-keyboard-row"><div tabindex="-1" class="Game-keyboard-button">q</div><div tabindex="-1" class="Game-keyboard-button">w</div><div tabindex="-1" class="Game-keyboard-button">e</div><div tabindex="-1" class="Game-keyboard-button">r</div><div tabindex="-1" class="Game-keyboard-button">t</div><div tabindex="-1" class="Game-keyboard-button">y</div><div tabindex="-1" class="Game-keyboard-button">u</div><div tabindex="-1" class="Game-keyboard-button">i</div><div tabindex="-1" class="Game-keyboard-button">o</div><div tabindex="-1" class="Game-keyboard-button">p</div></div><div class="Game-keyboard-row"><div tabindex="-1" class="Game-keyboard-button">a</div><div tabindex="-1" class="Game-keyboard-button">s</div><div tabindex="-1" class="Game-keyboard-button">d</div><div tabindex="-1" class="Game-keyboard-button">f</div><div tabindex="-1" class="Game-keyboard-button">g</div><div tabindex="-1" class="Game-keyboard-button">h</div><div tabindex="-1" class="Game-keyboard-button">j</div><div tabindex="-1" class="Game-keyboard-button">k</div><div tabindex="-1" class="Game-keyboard-button">l</div></div><div class="Game-keyboard-row"><div tabindex="-1" class="Game-keyboard-button Game-keyboard-button-wide"><svg width="22" height="22"><use xlink:href="/assets/img/spritesvg.svg?v44.15#backspace"></use></svg></div><div tabindex="-1" class="Game-keyboard-button">z</div><div tabindex="-1" class="Game-keyboard-button">x</div><div tabindex="-1" class="Game-keyboard-button">c</div><div tabindex="-1" class="Game-keyboard-button">v</div><div tabindex="-1" class="Game-keyboard-button">b</div><div tabindex="-1" class="Game-keyboard-button">n</div><div tabindex="-1" class="Game-keyboard-button">m</div><div tabindex="-1" class="Game-keyboard-button Game-keyboard-button-wide">Enter</div></div></div>`;
+
+            }
+        }
 
         renderScorePage() {
-            return;
+            // Set history state for the score page
+            history.pushState({ page: 'score' }, 'Wordle - Score', '/score');
+
+            this.main.innerHTML = `
+            <section class="score">
+                <h2>Scores</h2>
+                <p>Score 1: 100</p>
+                <p>Score 2: 80</p>
+                <p>Score 3: 50</p>
+            </section>`;
+        }
+
+        handlePopState(event) {
+            // Handle history navigation
+            const state = event.state;
+            if (state) {
+                if (state.page === 'welcome') {
+                    this.renderWelcomePage();
+                } else if (state.page === 'game') {
+                    this.renderGamePage();
+                } else if (state.page === 'score') {
+                    this.renderScorePage();
+                }
+            }
+        }
+
+
+        addKeyUpListener() {
+            // todo mozna dokument
+            this.main.addEventListener('keyup', e => {
+
+            });
         }
     }
 
@@ -70,7 +151,7 @@
     // const game_logic = new game_logic();
 
     const page_gen = new page_generator();
-    page_gen.renderWelcomePage();
+    // page_gen.renderWelcomePage();
 
 
 
