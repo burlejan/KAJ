@@ -14,6 +14,7 @@
 
     /* keyboard */
     --keyboardBG_clr: #fafafa;
+    --keyboardHoverBG_clr: #eeeeee;
 
     --border_clr: gray;
     --boxShadow_clr: rgba(0,0,0,0.2);
@@ -40,6 +41,7 @@
 
     /* keyboard */
     --keyboardBG_clr: var(--mainContentBlock_clr);
+    --keyboardHoverBG_clr: #202020;
 
     --border_clr: gray;
     --boxShadow_clr: rgba(255, 255, 255, 0.2);
@@ -163,6 +165,9 @@ section input:hover {
     align-content: stretch;
     column-gap: 0.1em;
     width: 100%;
+}
+.keyboard_row .keyboard_letter:hover {
+    background-color: var(--keyboardHoverBG_clr);
 }
 
 .keyboard_row .keyboard_letter {

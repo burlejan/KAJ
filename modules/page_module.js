@@ -34,13 +34,18 @@ export class Page_generator {
                 const secretWord = localStorage.getItem('current_secret_word');
                 if (activeGame == null || !activeGame || playerName == null || board == null || secretWord == null) {
                     // No data no game
+                    this.currentPlayerName = '';
+                    this.currentBoard = [];
+                    this.secretWord = null;
+                    this.isGame = false;
+                    this.gamelogic = null;
                     this.renderWelcomePage();
                 } else {
                     this.currentPlayerName = playerName;
                     this.currentBoard = board;
                     this.secretWord = secretWord;
                     this.isGame = true;
-                    this.gamelogic = new Game_logic(this.secretWord);
+                    this.gamelogic = Game_logic.createWithSecretWord(this.secretWord);
                     this.renderGamePage();
                 }
                 break;
@@ -81,7 +86,6 @@ export class Page_generator {
             const playerName = playerNameInput.value.trim();
             if (playerName !== '') {
                 this.currentPlayerName = playerName;
-                localStorage.setItem('current_player_name', playerName);
                 this.renderGamePage();
             }
         });
@@ -94,10 +98,12 @@ export class Page_generator {
         this.isGame = true;
         localStorage.setItem('active_game', this.isGame);
         localStorage.setItem('current_board', this.currentBoard);
+        localStorage.setItem('current_player_name', this.currentPlayerName);
         if (this.secretWord == null) {
             this.gamelogic = new Game_logic();
             this.secretWord = this.gamelogic.secretWord;
         }
+        localStorage.setItem('current_secret_word', this.secretWord);
         this.main.innerHTML = `
             <section class="single" id="board">
             </section>
@@ -116,7 +122,9 @@ export class Page_generator {
         // Rerender game board with the new word
         if (this.isGame) {
             const gameBoard = document.querySelector('#board');
-
+            for (let i = 0; i < 6; i++) {
+                if (this.currentBoard.hasOwnProperty(i)) {}
+            }
 
             gameBoard.innerHTML = `<p>Player: ${this.currentPlayerName}</p><br><p>Rendered board with new word</p>`;
         }
@@ -193,6 +201,9 @@ export class Page_generator {
         // todo mozna dokument
         this.main.addEventListener('keyup', e => {
             const letters = ['a','b','c','d','e','f', 'g', 'h', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
+            if (e.key==="Backspace") {
+                this.currentWord = this.currentWord;
+            }
             if (letters.includes(e.key)) {
                 if (this.currentWord.length < 5) {
                     this.currentWord += e.key;
@@ -200,26 +211,17 @@ export class Page_generator {
                 }
                 // todo alert moc dlouhe slovo, nebo taky nic
             }
-            if (e.key === "Enter") {
-                this.renderScorePage();
+            if (e.key==="Enter" && this.currentWord.length===5) {
+                //TODO handle check and
+                this.gamelogic.checkWord(this.currentWord);
+                let win = false; //temprorary
+                if (win) {
+                    this.isGame = false;
+                    //TODO invalidate vars
+                    this.renderScorePage();
+                }
+
             }
         });
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

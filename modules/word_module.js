@@ -8,17 +8,25 @@ export class Game_logic {
         this._getWords();
     }
 
-    constructor(secretWord) {
-        this.constructor()
-        this.secretWord = secretWord;
-
+    static createWithSecretWord(secretWord) {
+        const game = new Game_logic();
+        game._setSecretWord(secretWord);
+        return game;
     }
 
+
+    _setSecretWord(secretWord) {
+        this.secretWord = secretWord;
+    }
+
+    getSecretWord() {
+        return this.secretWord;
+    }
 
     _getWords(){
         //todo get words from ?file?
         this.words = ["apple", "lemon", "melon", "grape", "peach", "beach"];
-        return;
+        this.secretWord = this.words[Math.floor(Math.random() * this.words.length)];
     }
 
     
