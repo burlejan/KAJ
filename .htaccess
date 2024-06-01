@@ -1,0 +1,12 @@
+#<FilesMatch "\.js$">
+#    AddType text/javascipt . js
+#</FilesMatch>
+#<IfModule mime_module>
+#    AddType text/javascript .js
+#</IfModule>
+
+RewriteEngine On
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . /index.html [L]

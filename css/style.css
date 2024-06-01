@@ -12,6 +12,9 @@
     --mainContentBlock_clr: white;
     --mainCBlockBorder_clr: gray;
 
+    /* keyboard */
+    --keyboardBG_clr: #fafafa;
+
     --border_clr: gray;
     --boxShadow_clr: rgba(0,0,0,0.2);
 
@@ -34,6 +37,9 @@
     --BG_clr: black;
     --mainContentBlock_clr: #2a2a2a;
     --mainCBlockBorder_clr: gray;
+
+    /* keyboard */
+    --keyboardBG_clr: var(--mainContentBlock_clr);
 
     --border_clr: gray;
     --boxShadow_clr: rgba(255, 255, 255, 0.2);
@@ -98,6 +104,8 @@ main {
     justify-content: center;
     /*border: 2px solid var(--mainCBlockBorder_clr);*/
     /*background-color: var(--mainContentBlock_clr);*/
+    width: 100%;
+    margin: 0 20% 0 20%;
 }
 
 
@@ -134,4 +142,53 @@ section label {
 
 section input:hover {
     background-color: var(--input_hover_clr);
+}
+
+#keyboard {
+    display: flex;
+    flex-direction: column;
+    align-self: center;
+    justify-content: space-between;
+    row-gap: 0.05em;
+    width: 100%;
+    max-width: 800px;
+    
+}
+
+.keyboard_row {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: stretch;
+    align-content: stretch;
+    column-gap: 0.1em;
+    width: 100%;
+}
+
+.keyboard_row .keyboard_letter {
+    user-select: none;
+    text-decoration: inherit;
+    /*transition: .2s;*/
+
+
+    color: var(--text_clr);
+    margin: 3px;
+    min-height: 46px;
+    padding: 3px;
+    font-size: 17px;
+    font-weight: 700;
+    background-color: var(--keyboardBG_clr);
+    border: 1px solid var(--mainCBlockBorder_clr);
+    border-radius: 0.3em;
+    align-self: center;
+    cursor: pointer;
+    display: flex;
+    flex: 1 1;
+    justify-content: center;
+    align-items: center;
+    text-transform: capitalize;
+}
+
+.keyboard_row .keyboard_letter.keyboard_large_letter {
+    flex: 2 1;
 }

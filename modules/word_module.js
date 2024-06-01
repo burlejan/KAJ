@@ -2,13 +2,20 @@
 * Class for game logic
  */
 
-export class game_logic {
+export class Game_logic {
 
     constructor() {
-       this.#getWords();
+        this._getWords();
     }
 
-    #getWords(){
+    constructor(secretWord) {
+        this.constructor()
+        this.secretWord = secretWord;
+
+    }
+
+
+    _getWords(){
         //todo get words from ?file?
         this.words = ["apple", "lemon", "melon", "grape", "peach", "beach"];
         return;
@@ -17,7 +24,7 @@ export class game_logic {
     
 
     checkWord(quess) {
-        if (quess == this.secret) {
+        if (quess === this.secret) {
             
         }
     }
