@@ -30,7 +30,7 @@ export class Page_generator {
             case 'game':
                 const activeGame = localStorage.getItem('active_game');
                 const playerName = localStorage.getItem('current_player_name');
-                const board = localStorage.getItem('current_board');
+                const board = JSON.parse(localStorage.getItem('current_board'));
                 const secretWord = localStorage.getItem('current_secret_word');
                 if (activeGame == null || !activeGame || playerName == null || board == null || secretWord == null) {
                     // No data no game
@@ -70,6 +70,7 @@ export class Page_generator {
         // Set history state for the welcome page
         history.pushState({ page: 'welcome' }, 'Wordle - Welcome', '/');
 
+        // TODO add form
         this.main.innerHTML = `
             <section class="single">
                 <h2>Wordle</h2>
@@ -96,12 +97,14 @@ export class Page_generator {
         history.pushState({ page: 'game' }, 'Wordle - Game', '/game');
 
         this.isGame = true;
+        this.currentWord = '';
         localStorage.setItem('active_game', this.isGame);
-        localStorage.setItem('current_board', this.currentBoard);
+        // TODO determine if serialization is needed
+        localStorage.setItem('current_board', JSON.stringify(this.currentBoard));
         localStorage.setItem('current_player_name', this.currentPlayerName);
         if (this.secretWord == null) {
             this.gamelogic = new Game_logic();
-            this.secretWord = this.gamelogic.secretWord;
+            this.secretWord = this.gamelogic.getSecretWord();
         }
         localStorage.setItem('current_secret_word', this.secretWord);
         this.main.innerHTML = `
@@ -118,15 +121,49 @@ export class Page_generator {
         this._renderKeyboard();
     }
 
+    _getFiveCharStr(str) {
+
+        while (str.length < 5) {
+            str += ' ';
+        }
+
+        return str;
+    }
+
+    _getBoardRow(i, row = []) {
+        let result = '';
+        if (row.length>0) {
+            for (const letter of row) {
+                result += this._getLetterBox("board", letter, letter);
+            }
+            
+        } else {
+            // let guess = this._getFiveCharStr(this.currentWord)
+            for (let j = 0; j < 5; j++) {
+                result += this._getLetterBox("board", '');
+            }
+        }
+
+        return "<div class=\"board_row\">" + result + "</div>";
+    }
+
     _renderBoard() {
         // Rerender game board with the new word
         if (this.isGame) {
             const gameBoard = document.querySelector('#board');
+
+            let result = '';
+            let guessRendered = false;
             for (let i = 0; i < 6; i++) {
-                if (this.currentBoard.hasOwnProperty(i)) {}
+                let row = this.currentBoard.hasOwnProperty(i) ? this.currentBoard[i] : [];
+                if (row.length===0 && !guessRendered) {
+                    row = this._getFiveCharStr(this.currentWord);
+                    guessRendered = true;
+                }
+                result += this._getBoardRow(i, row);
             }
 
-            gameBoard.innerHTML = `<p>Player: ${this.currentPlayerName}</p><br><p>Rendered board with new word</p>`;
+            gameBoard.innerHTML = `<p>Player: ${this.currentPlayerName}</p>` + result;
         }
     }
 
@@ -137,18 +174,19 @@ export class Page_generator {
             </svg>`;
     }
 
-    _getLetterBox(letter, id, extraClasses ='') {
-        return `<div tabindex="-1" class="keyboard_letter ${extraClasses}" id="${id}">${letter}</div>`;
+    _getLetterBox(type, letter, id = '', extraClasses ='') {
+        id = id!=='' ? `id="${id}"` : '';
+        return `<div tabindex="-1" class="${type}_letter letter ${extraClasses}" ${id}>${letter}</div>`;
     }
 
-    _getRow(letters, last = false) {
+    _getKeyboardRow(letters, last = false) {
         let result = '';
         for (const letter of letters) {
-            result += this._getLetterBox(letter, letter);
+            result += this._getLetterBox("keyboard", letter, letter);
         }
 
         if (last) {
-            result = this._getLetterBox(this._getBackspaceSvg(), 'backspace', 'keyboard_large_letter') + result + this._getLetterBox('Enter', 'enter', 'keyboard_large_letter');
+            result = this._getLetterBox("keyboard", this._getBackspaceSvg(), 'backspace', 'keyboard_large_letter') + result + this._getLetterBox("keyboard", 'Enter', 'enter', 'keyboard_large_letter');
         }
         return "<div class=\"keyboard_row\">" + result + "</div>";
     }
@@ -160,7 +198,7 @@ export class Page_generator {
             let result = '';
             const keyboard = {"first":['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'], "second":['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'], "last":['z', 'x', 'c', 'v', 'b', 'n', 'm']};
             for (const [key, letters] of Object.entries(keyboard)) {
-                result += this._getRow(letters, key === 'last');
+                result += this._getKeyboardRow(letters, key === 'last');
             }
 
             keyboardDiv.innerHTML = result;
@@ -198,30 +236,36 @@ export class Page_generator {
 
 
     addKeyUpListener() {
-        // todo mozna dokument
-        this.main.addEventListener('keyup', e => {
-            const letters = ['a','b','c','d','e','f', 'g', 'h', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
-            if (e.key==="Backspace") {
-                this.currentWord = this.currentWord;
-            }
-            if (letters.includes(e.key)) {
-                if (this.currentWord.length < 5) {
-                    this.currentWord += e.key;
-                    return;
+        document.addEventListener('keyup', e => {
+            if (this.isGame) {
+                const letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
+                if (e.key === "Backspace") {
+                    if (this.currentWord.length > 0) {
+                        this.currentWord = this.currentWord.slice(0, -1);
+                    }
                 }
-                // todo alert moc dlouhe slovo, nebo taky nic
-            }
-            if (e.key==="Enter" && this.currentWord.length===5) {
-                //TODO handle check and
-                this.gamelogic.checkWord(this.currentWord);
-                let win = false; //temprorary
-                if (win) {
-                    this.isGame = false;
-                    //TODO invalidate vars
-                    this.renderScorePage();
+                if (letters.includes(e.key)) {
+                    if (this.currentWord.length < 5) {
+                        this.currentWord += e.key;
+                        // TODO visualize keypress
+                    }
+                    // todo alert moc dlouhe slovo, nebo taky nic
                 }
-
+                if (e.key === "Enter" && this.currentWord.length === 5) {
+                    //TODO handle check and
+                    let checkResult = this.gamelogic.checkWord(this.currentWord);
+                    let win = checkResult[0]; //temporary
+                    if (win) {
+                        this.isGame = false;
+                        this.currentWord = null;
+                        //TODO invalidate vars
+                        this.renderScorePage();
+                        return;
+                    }
+                }
+                this._renderBoardAndKeyboard()
             }
         });
     }
+
 }

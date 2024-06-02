@@ -29,13 +29,15 @@ export class Game_logic {
         this.secretWord = this.words[Math.floor(Math.random() * this.words.length)];
     }
 
-    
-
     checkWord(quess) {
-        if (quess === this.secret) {
-            
+        if (quess === this.secretWord) {
+            return [true];
+        } else {
+            // TODO check characters
+            return [false];
         }
     }
+
 }
 
 

@@ -55,6 +55,14 @@
     --text_clr: white;
 }
 
+a.secret {
+    color: var(--text_clr);
+    text-decoration: none;
+}
+
+a.secret.hover_underline:hover {
+    text-decoration: underline;
+}
 
 body {
     font-family: Arial, sans-serif;
@@ -170,12 +178,9 @@ section input:hover {
     background-color: var(--keyboardHoverBG_clr);
 }
 
-.keyboard_row .keyboard_letter {
+.letter {
     user-select: none;
     text-decoration: inherit;
-    /*transition: .2s;*/
-
-
     color: var(--text_clr);
     margin: 3px;
     min-height: 46px;
@@ -184,16 +189,41 @@ section input:hover {
     font-weight: 700;
     background-color: var(--keyboardBG_clr);
     border: 1px solid var(--mainCBlockBorder_clr);
-    border-radius: 0.3em;
     align-self: center;
-    cursor: pointer;
     display: flex;
     flex: 1 1;
     justify-content: center;
     align-items: center;
     text-transform: capitalize;
 }
+.keyboard_row .keyboard_letter {
+    border-radius: 0.3em;
+    cursor: pointer;
+}
 
 .keyboard_row .keyboard_letter.keyboard_large_letter {
     flex: 2 1;
+}
+
+#board {
+    display: flex;
+    flex-direction: column;
+    align-self: center;
+    justify-content: space-between;
+    row-gap: 0.05em;
+    width: 100%;
+    max-width: 350px;
+}
+
+.board_row {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: stretch;
+    align-content: stretch;
+    column-gap: 0.1em;
+    width: 100%;
+}
+
+.board_row .board_letter {
 }
