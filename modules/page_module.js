@@ -134,7 +134,11 @@ export class Page_generator {
         let result = '';
         if (row.length>0) {
             for (const letter of row) {
-                result += this._getLetterBox("board", letter, letter);
+                if (letter.length > 1) {
+                    result += this._getLetterBox("board", letter[0], '', letter[1]);
+                } else {
+                    result += this._getLetterBox("board", letter);
+                }
             }
             
         } else {
@@ -249,19 +253,25 @@ export class Page_generator {
                         this.currentWord += e.key;
                         // TODO visualize keypress
                     }
-                    // todo alert moc dlouhe slovo, nebo taky nic
                 }
                 if (e.key === "Enter" && this.currentWord.length === 5) {
                     //TODO handle check and
-                    let checkResult = this.gamelogic.checkWord(this.currentWord);
-                    let win = checkResult[0]; //temporary
-                    if (win) {
-                        this.isGame = false;
-                        this.currentWord = null;
-                        //TODO invalidate vars
-                        this.renderScorePage();
-                        return;
+                    let [result, letters] = this.gamelogic.checkWord(this.currentWord);
+                    let win = result[0]; //temporary
+                    if (result[1]) {
+                        this.currentBoard[this.currentWord.length] = letters;
+                        this.currentWord = '';
+
+                        //TODO animation and then stats
+                        if (win) {
+                            this.isGame = false;
+                            this.currentWord = null;
+                            //TODO invalidate vars
+                            this.renderScorePage();
+                            return;
+                        }
                     }
+
                 }
                 this._renderBoardAndKeyboard()
             }

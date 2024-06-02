@@ -29,12 +29,40 @@ export class Game_logic {
         this.secretWord = this.words[Math.floor(Math.random() * this.words.length)];
     }
 
-    checkWord(quess) {
-        if (quess === this.secretWord) {
-            return [true];
+    checkWord(guess) {
+        if (guess === this.secretWord) {
+            return [true, true];
         } else {
+            if (this.words.includes(guess)) {
+                let result = [];
+                for (let i = 0; i < this.secretWord.length; i++) {
+                    result.push([guess[i], 'absent'])
+                }
+
+                const secretCount = {};
+                const guessCount = {};
+
+                for (let i = 0; i < guess.length; i++) {
+                    if (guess[i] === this.secretWord[i]) {
+                        result[i] = [guess[i], 'correct'];
+                    } else {
+                        secretCount[this.secretWord[i]] = (secretCount[this.secretWord[i]] || 0) + 1;
+                        guessCount[guess[i]] = (guessCount[guess[i]] || 0) + 1;
+                    }
+                }
+
+                for (let i = 0; i < guess.length; i++) {
+                    if (result[i][1] === 'correct') continue;
+                    if (secretCount[guess[i]]) {
+                        result[i] = [guess[i], 'present'];
+                        secretCount[guess[i]]--;
+                    }
+                }
+
+                return [[false, true], result];
+            }
             // TODO check characters
-            return [false];
+            return [false, false];
         }
     }
 
