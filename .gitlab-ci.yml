@@ -1,10 +1,11 @@
-image: node:latest
-
 pages:
+  stage: deploy
   script:
-    - echo "Deploying to GitLab Pages"
+  - mkdir .public
+  - cp -r * .public
+  - mv .public public
   artifacts:
     paths:
-      - .  # Include all files in the root directory
+    - public
   only:
-    - main  # Or specify your main branch name
+  - main
