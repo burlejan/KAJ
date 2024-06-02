@@ -9,9 +9,9 @@ toggle.addEventListener('click', toggleColorScheme)
 function changeLabel() {
     // nastaveni popisku na tlacitku pro zmenu barevneho schematu
     if (document.documentElement.classList.contains("dark")) {
-        toggleSpan.innerHTML = "&#x263e;";
-    } else {
         toggleSpan.innerHTML = "&#x2600;";
+    } else {
+        toggleSpan.innerHTML = "&#x263e;";
     }
 }
 

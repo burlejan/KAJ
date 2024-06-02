@@ -68,6 +68,10 @@ a.secret.hover_underline:hover {
     text-decoration: underline;
 }
 
+h4, h3 {
+    margin: 0 0 5px 0;
+}
+
 body {
     font-family: Arial, sans-serif;
     display: flex;
@@ -95,6 +99,7 @@ header #theme_toggle {
     justify-content: center;
     color: var(--dropdownFont_clr);
     font-size: 2em;
+    user-select: none;
 }
 :root.dark header #theme_toggle #theme_toggle_span {
     padding-right: 3px;
@@ -116,20 +121,34 @@ main {
     align-self: center;
     align-items: center;
     justify-content: center;
-    /*border: 2px solid var(--mainCBlockBorder_clr);*/
-    /*background-color: var(--mainContentBlock_clr);*/
     width: 100%;
     margin: 0 20% 0 20%;
 }
 
 
 section.single {
+    padding: 1px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 80%;
+    max-width: 500px;
+    color: var(--text_clr);
+    font-size: 1em;
+}
+
+#name_form {
     padding: 10px;
+    margin: 10px;
     display: flex;
     flex-direction: column;
     justify-content: center;
     color: var(--text_clr);
     font-size: 1em;
+    width: 100%;
+    max-width: 350px;
+    min-width: 200px;
 }
 
 section.single h2 {
@@ -142,16 +161,22 @@ section input {
     border: 1px solid var(--border_clr);
     background-color: var(--inputBG_clr);
     font-size: inherit;
+    padding: 2px;
+}
+
+section input[type='submit'] {
+    padding: 5px;
 }
 
 section label {
     font-size: inherit;
 }
 
-#submit_player_name {
-    align-self: flex-end;
+.buttons {
     margin-top: 5px;
-    padding: 5px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
 }
 
 section input:hover {
@@ -166,7 +191,6 @@ section input:hover {
     row-gap: 0.05em;
     width: 100%;
     max-width: 800px;
-    
 }
 
 .keyboard_row {
@@ -204,7 +228,6 @@ section input:hover {
     border-radius: 0.3em;
     cursor: pointer;
 }
-
 .keyboard_row .keyboard_letter.keyboard_large_letter {
     flex: 2 1;
 }
@@ -224,6 +247,9 @@ section input:hover {
     max-width: 350px;
 }
 
+#board .letter[data-content~='letter'] {
+    border-width: 2px;
+}
 
 .letter.absent {
     background-color: var(--absentBG_clr);
@@ -237,7 +263,6 @@ section input:hover {
     background-color: #009600;
 }
 
-
 .board_row {
     display: flex;
     flex-direction: row;
@@ -248,6 +273,49 @@ section input:hover {
     width: 100%;
 }
 
-.board_row .board_letter {
-    
+#score {
+    max-width: 400px;
+}
+#submit_play_again {
+    align-self: flex-end;
+}
+
+#score table {
+    width: 100%;
+    margin: 0 0 10px 0;
+
+
+    th {
+        text-align: left;
+        padding: 5px;
+        border: 1px solid var(--border_clr);
+        background-color: var(--absentBG_clr);
+    }
+
+    tbody {
+        counter-reset: score_table;
+    }
+
+    tr {
+        counter-increment: score_table;
+        td:first-child::before {
+            content: counter(score_table) ". ";
+        }
+
+        td {
+            min-width: 100px;
+            padding: 5px;
+            border: 1px solid var(--border_clr);
+        }
+
+        &:nth-child(even) {
+            background-color: var(--keyboardHoverBG_clr);
+        }
+
+        &:nth-child(odd) {
+            background-color: var(--keyboardBG_clr);
+        }
+    }
+
+
 }
