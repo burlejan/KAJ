@@ -12,8 +12,9 @@ export class Page_generator {
         this.secretWord = null;
         this.gamelogic = null;
         this.isGame = false;
+        this.keyboard = null;
         localStorage.setItem('active_game', this.isGame);
-        this.currentBoard = {};
+        this.currentBoard = [];
         window.onpopstate = this.handlePopState.bind(this); // Listen to popstate event for history navigation
         this._renderPageByURL();
         this.addKeyUpListener(); // mozna zbytecne
@@ -46,6 +47,7 @@ export class Page_generator {
                     this.secretWord = secretWord;
                     this.isGame = true;
                     this.gamelogic = Game_logic.createWithSecretWord(this.secretWord);
+                    this.keyboard = Keyboard.createFromBoard(this.currentBoard);
                     this.renderGamePage();
                 }
                 break;
@@ -106,6 +108,7 @@ export class Page_generator {
             this.gamelogic = new Game_logic();
             this.secretWord = this.gamelogic.getSecretWord();
         }
+        this.keyboard = this.keyboard == null ? new Keyboard() : this.keyboard;
         localStorage.setItem('current_secret_word', this.secretWord);
         this.main.innerHTML = `
             <section class="single" id="board">
@@ -142,7 +145,6 @@ export class Page_generator {
             }
             
         } else {
-            // let guess = this._getFiveCharStr(this.currentWord)
             for (let j = 0; j < 5; j++) {
                 result += this._getLetterBox("board", '');
             }
@@ -186,11 +188,12 @@ export class Page_generator {
     _getKeyboardRow(letters, last = false) {
         let result = '';
         for (const letter of letters) {
-            result += this._getLetterBox("keyboard", letter, letter);
+            result += this._getLetterBox("keyboard", letter[0], letter[0], letter[1]);
         }
 
         if (last) {
-            result = this._getLetterBox("keyboard", this._getBackspaceSvg(), 'backspace', 'keyboard_large_letter') + result + this._getLetterBox("keyboard", 'Enter', 'enter', 'keyboard_large_letter');
+            result = this._getLetterBox("keyboard", this._getBackspaceSvg(), 'backspace', 'keyboard_large_letter') + result +
+                this._getLetterBox("keyboard", 'Enter', 'enter', 'keyboard_large_letter');
         }
         return "<div class=\"keyboard_row\">" + result + "</div>";
     }
@@ -200,8 +203,8 @@ export class Page_generator {
             const keyboardDiv = document.querySelector('#keyboard');
 
             let result = '';
-            const keyboard = {"first":['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'], "second":['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'], "last":['z', 'x', 'c', 'v', 'b', 'n', 'm']};
-            for (const [key, letters] of Object.entries(keyboard)) {
+
+            for (const [key, letters] of Object.entries(this.keyboard.getKeyboard())) {
                 result += this._getKeyboardRow(letters, key === 'last');
             }
 
@@ -238,6 +241,14 @@ export class Page_generator {
         }
     }
 
+    _handleClick(keyboardLetter) {
+        if (keyboardLetter != null) {
+            keyboardLetter.classList.add('active');
+            setTimeout(() => {
+                keyboardLetter.classList.remove('active');
+            }, 200);
+        }
+    }
 
     addKeyUpListener() {
         document.addEventListener('keyup', e => {
@@ -246,29 +257,40 @@ export class Page_generator {
                 if (e.key === "Backspace") {
                     if (this.currentWord.length > 0) {
                         this.currentWord = this.currentWord.slice(0, -1);
+                        this._handleClick(document.querySelector(`#backspace`));
                     }
+                    this._renderBoard();
+                    return;
                 }
                 if (letters.includes(e.key)) {
                     if (this.currentWord.length < 5) {
                         this.currentWord += e.key;
-                        // TODO visualize keypress
+                        this._handleClick(document.querySelector(`#${e.key}`));
+                        this._renderBoard()
+                        return;
                     }
                 }
                 if (e.key === "Enter" && this.currentWord.length === 5) {
-                    //TODO handle check and
+                    this._handleClick(document.querySelector(`#enter`));
+
                     let [result, letters] = this.gamelogic.checkWord(this.currentWord);
                     let win = result[0]; //temporary
                     if (result[1]) {
-                        this.currentBoard[this.currentWord.length] = letters;
+                        this.currentBoard[this.currentBoard.length] = letters;
+                        localStorage.setItem('current_board', JSON.stringify(this.currentBoard));
                         this.currentWord = '';
 
-                        //TODO animation and then stats
+                        for (const letter of letters) {
+                            this.keyboard.addClassToLetter(...letter);
+                            // let key = document.querySelector('#'+letter[0]);
+                            // key.classList.add(letter[1]);
+                        }
+
                         if (win) {
                             this.isGame = false;
                             this.currentWord = null;
-                            //TODO invalidate vars
-                            this.renderScorePage();
-                            return;
+                            //TODO animation and then stats
+                            setTimeout(() => this.renderScorePage(), 4000);
                         }
                     }
 
@@ -276,6 +298,54 @@ export class Page_generator {
                 this._renderBoardAndKeyboard()
             }
         });
+    }
+
+}
+
+
+class Keyboard {
+    constructor() {
+        this.letters = {
+            'a':['a',''], 'b':['b',''], 'c':['c',''], 'd':['d',''], 'e':['e',''], 'f':['f',''], 'g':['g',''],
+            'h':['h',''], 'i':['i',''], 'j':['j',''], 'k':['k',''], 'l':['l',''], 'm':['m',''], 'n':['n',''],
+            'o':['o',''], 'p':['p',''], 'q':['q',''], 'r':['r',''], 's':['s',''], 't':['t',''], 'u':['u',''],
+            'v':['v',''], 'w':['w',''], 'x':['x',''], 'y':['y',''], 'z':['z','']};
+    }
+
+    addClassToLetter(letter, newClass) {
+        if (this.letters.hasOwnProperty(letter)) {
+            const oldClass = this.letters[letter][1];
+            switch (oldClass) {
+                case 'correct': // do nothing
+                    break;
+                case 'present': // only change to correct
+                    if (newClass === 'correct') {
+                        this.letters[letter][1] = newClass;
+                    }
+                    break;
+                default: // add class, things can only be better
+                    this.letters[letter][1] = newClass;
+                    break;
+            }
+
+        }
+    }
+
+    getKeyboard() {
+        return {"first":[this.letters['q'], this.letters['w'], this.letters['e'], this.letters['r'], this.letters['t'], this.letters['y'], this.letters['u'], this.letters['i'], this.letters['o'], this.letters['p']],
+            "second":[this.letters['a'], this.letters['s'], this.letters['d'], this.letters['f'], this.letters['g'], this.letters['h'], this.letters['j'], this.letters['k'], this.letters['l']],
+        "last":[this.letters['z'], this.letters['x'], this.letters['c'], this.letters['v'], this.letters['b'], this.letters['n'], this.letters['m']]};
+
+    }
+
+    static createFromBoard(board) {
+        const keyboard = new Keyboard();
+        for (const [row, letters] of Object.entries(board)) {
+            for (const [letter, value] of letters) {
+                keyboard.addClassToLetter(letter, value);
+            }
+        }
+        return keyboard;
     }
 
 }

@@ -24,14 +24,20 @@ export class Game_logic {
     }
 
     _getWords(){
-        //todo get words from ?file?
+        //todo get words.txt from ?file?
+        fetch("/words.txt").then();
+        
         this.words = ["apple", "lemon", "melon", "grape", "peach", "beach"];
         this.secretWord = this.words[Math.floor(Math.random() * this.words.length)];
     }
 
     checkWord(guess) {
         if (guess === this.secretWord) {
-            return [true, true];
+            let result = [];
+            for (let i = 0; i < this.secretWord.length; i++) {
+                result.push([guess[i], 'correct'])
+            }
+            return [[true, true], result];
         } else {
             if (this.words.includes(guess)) {
                 let result = [];
@@ -61,8 +67,7 @@ export class Game_logic {
 
                 return [[false, true], result];
             }
-            // TODO check characters
-            return [false, false];
+            return [[false, false]];
         }
     }
 
@@ -72,11 +77,11 @@ export class Game_logic {
 
 
 
-// // List of possible words
-// const words = ["apple", "orange", "lemon", "melon", "banana", "grape", "peach", "cherry", "plum", "kiwi"];
+// // List of possible words.txt
+// const words.txt = ["apple", "orange", "lemon", "melon", "banana", "grape", "peach", "cherry", "plum", "kiwi"];
 //
 // // Pick a random word from the list
-// let secretWord = words[Math.floor(Math.random() * words.length)];
+// let secretWord = words.txt[Math.floor(Math.random() * words.txt.length)];
 // let attemptsLeft = 6;
 // let guessedWord = "_____"; // Display placeholder
 //

@@ -15,6 +15,8 @@
     /* keyboard */
     --keyboardBG_clr: #fafafa;
     --keyboardHoverBG_clr: #eeeeee;
+    --absentBG_clr: #cccccc;
+    --presentBG_clr: yellow;
 
     --border_clr: gray;
     --boxShadow_clr: rgba(0,0,0,0.2);
@@ -42,6 +44,8 @@
     /* keyboard */
     --keyboardBG_clr: var(--mainContentBlock_clr);
     --keyboardHoverBG_clr: #202020;
+    --absentBG_clr: #50505;
+    --presentBG_clr: #e0c51e;
 
     --border_clr: gray;
     --boxShadow_clr: rgba(255, 255, 255, 0.2);
@@ -205,6 +209,11 @@ section input:hover {
     flex: 2 1;
 }
 
+.keyboard_row .keyboard_letter.active {
+    background-color: var(--keyboardHoverBG_clr);
+    transition: background-color 0.1s ease;
+}
+
 #board {
     display: flex;
     flex-direction: column;
@@ -214,6 +223,20 @@ section input:hover {
     width: 100%;
     max-width: 350px;
 }
+
+
+.letter.absent {
+    background-color: var(--absentBG_clr);
+}
+
+.letter.present {
+    background-color: var(--presentBG_clr);
+}
+
+.letter.correct {
+    background-color: #009600;
+}
+
 
 .board_row {
     display: flex;
@@ -226,4 +249,5 @@ section input:hover {
 }
 
 .board_row .board_letter {
+    
 }
