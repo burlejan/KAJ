@@ -1,0 +1,10 @@
+image: node:latest
+
+pages:
+  script:
+    - echo "Deploying to GitLab Pages"
+  artifacts:
+    paths:
+      - .  # Include all files in the root directory
+  only:
+    - main  # Or specify your main branch name
