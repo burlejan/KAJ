@@ -5,8 +5,6 @@ const pointsForWin = 100;
 const pointsForCorrectLetter = 10;
 const pointsForPresentLetter = 5;
 
-// TODO animation - render section, come up from below
-
 // TODO deployment gitlab - viz martin cerny pages facebook
 
 import {Game_logic} from "./word_module.js";
@@ -14,7 +12,6 @@ import {Game_logic} from "./word_module.js";
 export class Page_generator {
     constructor() {
         this.main = document.querySelector('main');
-        this._getCurrentPageFromURL();
         this.currentPlayerName = '';
         this.secretWord = null;
         this.gamelogic = null;
@@ -24,14 +21,14 @@ export class Page_generator {
         localStorage.setItem('active_game', this.isGame);
         this.currentBoard = [];
         window.onpopstate = this.handlePopState.bind(this); // Listen to popstate event for history navigation
-        this._renderPageByURL();
         this.addKeyUpListener();
+        this._renderPageByURL().then();
     }
 
-    _renderPageByURL() {
+    async _renderPageByURL() {
         let page = this._getCurrentPageFromURL();
         if (page == null) {
-            this.renderWelcomePage();
+            await this.renderWelcomePage();
             return;
         }
 
@@ -52,7 +49,7 @@ export class Page_generator {
                     this.isGame = false;
                     this.gamelogic = null;
                     this.score = 0;
-                    this.renderWelcomePage();
+                    await this.renderWelcomePage();
                 } else {
                     this.currentPlayerName = playerName;
                     this.currentBoard = board;
@@ -61,82 +58,107 @@ export class Page_generator {
                     this.score = Number.parseInt(score);
                     this.gamelogic = Game_logic.createWithSecretWord(this.secretWord);
                     this.keyboard = Keyboard.createFromBoard(this.currentBoard);
-                    this.renderGamePage();
+                    await this.renderGamePage();
                 }
                 break;
             case 'score':
-                this.renderScorePage()
+                await this.renderScorePage()
                 break;
             default:
-                this.renderWelcomePage();
+                await this.renderWelcomePage();
                 break;
         }
-
     }
 
-    renderWelcomePage() {
-        // Set history state for the welcome page
-        history.pushState({ page: 'welcome' }, 'Wordle - Welcome', '/');
+    async renderWelcomePage() {
+        await this._applyPageTransition(() => {
+            // Set history state for the welcome page
+            history.pushState({ page: 'welcome' }, 'Wordle - Welcome', '/');
+            this.isGame = false
 
-        this.main.innerHTML = `
-            <section class="single">
-                <form id="name_form">
-                    <h2>Wordle</h2>
-                    <label for="player_name">Player name:</label>
-                    <input type="text" id="player_name" maxlength="5" placeholder="Enter your name">
-                    <div class="buttons">
-                        <input type="submit" value="View scores" id="submit_score_page">
-                        <input type="submit" value="Start game" id="submit_player_name">
-                    </div>
-                </form>
-            </section>`;
+            this.main.innerHTML = `
+                <section class="single">
+                    <form id="name_form">
+                        <h2>Wordle</h2>
+                        <label for="player_name">Player name:</label>
+                        <input type="text" id="player_name" maxlength="5" placeholder="Enter your name">
+                        <div class="buttons">
+                            <input type="submit" value="View scores" id="submit_score_page">
+                            <input type="submit" value="Start game" id="submit_player_name">
+                        </div>
+                    </form>
+                </section>`;
 
-        const submitButton = document.querySelector('#submit_player_name');
-        const scoreButton = document.querySelector('#submit_score_page');
-        const playerNameInput = document.querySelector('#player_name');
+            const submitButton = document.querySelector('#submit_player_name');
+            const scoreButton = document.querySelector('#submit_score_page');
+            const playerNameInput = document.querySelector('#player_name');
 
-        scoreButton.addEventListener('click', (e) => {
-            e.preventDefault();
-            this.renderScorePage();
+            scoreButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.renderScorePage();
+            });
+
+            submitButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                const playerName = playerNameInput.value.trim();
+                if (playerName !== '') {
+                    this.currentPlayerName = playerName;
+                    this.renderGamePage();
+                }
+            });
         });
+    }
 
-        submitButton.addEventListener('click', (e) => {
-            e.preventDefault();
-            const playerName = playerNameInput.value.trim();
-            if (playerName !== '') {
-                this.currentPlayerName = playerName;
-                this.renderGamePage();
+    async renderGamePage() {
+        await this._applyPageTransition(() => {
+            // Set history state for the game page
+            history.pushState({ page: 'game' }, 'Wordle - Game', '/game');
+
+            // New Game, when the game is loaded from storage game is already true
+            if (!this.isGame) {
+                this.currentBoard = [];
+                this.keyboard = new Keyboard();
+                this.score = 0;
+                this.gamelogic = new Game_logic();
+                this.secretWord = this.gamelogic.getSecretWord();
             }
+
+            this.isGame = true;
+            this.currentWord = '';
+            localStorage.setItem('active_game', this.isGame);
+            localStorage.setItem('current_board', JSON.stringify(this.currentBoard));
+            localStorage.setItem('current_player_name', this.currentPlayerName);
+            localStorage.setItem('current_secret_word', this.secretWord);
+            localStorage.setItem('current_score', this.score);
+            this.main.innerHTML = `
+                <section class="single" id="board">
+                </section>
+                <section class="single" id="keyboard">
+                </section>`;
+
+            this._renderBoardAndKeyboard();
         });
     }
 
-    renderGamePage() {
-        // Set history state for the game page
-        history.pushState({ page: 'game' }, 'Wordle - Game', '/game');
-
-        // New Game, when the game is loaded from storage game is already true
-        if (!this.isGame) {
-            this.currentBoard = [];
-            this.keyboard = new Keyboard();
-            this.score = 0;
-            this.gamelogic = new Game_logic();
-            this.secretWord = this.gamelogic.getSecretWord();
-        }
-
-        this.isGame = true;
-        this.currentWord = '';
-        localStorage.setItem('active_game', this.isGame);
-        localStorage.setItem('current_board', JSON.stringify(this.currentBoard));
-        localStorage.setItem('current_player_name', this.currentPlayerName);
-        localStorage.setItem('current_secret_word', this.secretWord);
-        localStorage.setItem('current_score', this.score);
-        this.main.innerHTML = `
-            <section class="single" id="board">
-            </section>
-            <section class="single" id="keyboard">
-            </section>`;
-
-        this._renderBoardAndKeyboard();
+    _applyPageTransition(renderPageCallback) {
+        const transitionTime = 400;
+        return new Promise((resolve) => {
+            const main = this.main;
+            main.classList.add('page_transition_exit_active');
+            setTimeout(() => {
+                main.classList.remove('page_transition_exit_active');
+                main.classList.add('page_transition_enter');
+                renderPageCallback();
+                requestAnimationFrame(() => {
+                    main.classList.add('page_transition_enter_active');
+                    main.classList.remove('page_transition_enter');
+                    setTimeout(() => {
+                        main.classList.remove('page_transition_enter_active');
+                        resolve();
+                    }, transitionTime); // Match the duration of the CSS transition
+                });
+            }, transitionTime); // Match the duration of the CSS transition
+        });
     }
 
     _getStatTableRows() {
@@ -156,40 +178,42 @@ export class Page_generator {
         return result;
     }
 
-    renderScorePage() {
-        // Set history state for the score page
-        history.pushState({ page: 'score' }, 'Wordle - Score', '/score');
+    async renderScorePage() {
+        await this._applyPageTransition(() => {
+            // Set history state for the score page
+            history.pushState({ page: 'score' }, 'Wordle - Score', '/score');
+            this.isGame = false;
 
-        let tableBody = this._getStatTableRows();
-        let table = '';
-        if (tableBody == null) {
-            table = `<tr><td colspan="3">No scores were found, you should try to play!</td></tr>`;
-        } else {
-            table = `<table>
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Score</th>
-                        <th>Date</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${tableBody}                  
-                </tbody>
-            </table>`;
-        }
+            let tableBody = this._getStatTableRows();
+            let table = '';
+            if (tableBody == null) {
+                table = `<tr><td colspan="3">No scores were found, you should try to play!</td></tr>`;
+            } else {
+                table = `<table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Score</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${tableBody}                  
+                    </tbody>
+                </table>`;
+            }
 
-        this.main.innerHTML = `
-            <section class="single" id="score">
-                <h2>Scores</h2>
-                ${table}     
-                <input type="submit" value="Play again" id="submit_play_again">
-            </section>`;
+            this.main.innerHTML = `
+                <section class="single" id="score">
+                    <h2>Scores</h2>
+                    ${table}     
+                    <input type="submit" value="Play again" id="submit_play_again">
+                </section>`;
 
-        const playAgainButton = document.querySelector('#submit_play_again');
-
-        playAgainButton.addEventListener('click', (e) => {
-            this.renderWelcomePage()
+            const playAgainButton = document.querySelector('#submit_play_again');
+            playAgainButton.addEventListener('click', (e) => {
+                this.renderWelcomePage()
+            });
         });
     }
 
@@ -217,7 +241,7 @@ export class Page_generator {
                     this._handleClick(document.querySelector(`#enter`));
 
                     let [result, letters] = this.gamelogic.checkWord(this.currentWord);
-                    let win = result[0]; //temporary
+                    let win = result[0]; 
                     if (result[1]) {
                         this.currentBoard[this.currentBoard.length] = letters;
                         localStorage.setItem('current_board', JSON.stringify(this.currentBoard));
@@ -226,38 +250,47 @@ export class Page_generator {
                         for (const letter of letters) {
                             this.keyboard.addClassToLetter(...letter);
                             this._addScoreForLetter(letter[1]);
-                            // let key = document.querySelector('#'+letter[0]);
-                            // key.classList.add(letter[1]);
                         }
                         localStorage.setItem('current_score', this.score);
 
-                        if (win) {
-                            this.isGame = false;
-                            this.currentWord = null;
+                        if (win || this.currentBoard.length===6) { // Game ended in a win or a defeat
                             this.score += pointsForWin * (6 - this.currentBoard.length + 1);
-                            localStorage.setItem('current_score', this.score);
-                            localStorage.setItem('active_game', this.isGame);
-
                             let scoreTable = JSON.parse(localStorage.getItem('score_table'));
                             if (scoreTable==null) {
                                 scoreTable = new Array(0);
                             }
                             scoreTable.push([this.currentPlayerName, this.score, new Date().toLocaleString()]);
+                            scoreTable.sort((a, b) => b[1] - a[1]);
                             if (scoreTable.length > 10) {
                                 scoreTable.pop();
                             }
                             localStorage.setItem('score_table', JSON.stringify(scoreTable));
-                            //TODO animation and then stats
-                            this._renderBoardAndKeyboard()
-                            setTimeout(() => this.renderScorePage(), 2000);
-                            
 
+                            this._renderBoardAndKeyboard()
+                            // Invalidate variables
+                            this.isGame = false;
+                            this.currentWord = null;
+                            this.score = 0;
+                            this.currentWord = [];
+                            this.currentPlayerName = '';
+                            localStorage.setItem('current_score', this.score);
+                            localStorage.setItem('active_game', this.isGame);
+
+                            this._showModalWindow("You " + win ? 'won': 'lost' + '!', 300);
+                            requestAnimationFrame(() => {
+                                setTimeout(async () => {
+                                    await this.renderScorePage();
+                                }, 2000);
+                            });
                             return;
                         }
-                    }
 
+                        this._renderBoardAndKeyboard()
+                    } else {
+                        this._showModalWindow("Wrong word!", 0, 1000);
+                    }
                 }
-                this._renderBoardAndKeyboard()
+
             }
         });
     }
@@ -411,6 +444,25 @@ export class Page_generator {
         }
     }
 
+    _showModalWindow(string, delay, ttl = 0) {
+        let modal = document.createElement('div');
+        modal.innerHTML = `<div class="modal-content"><h2>${string}!</h2></div>`;
+        modal.classList.add('modal');
+        this.main.append(modal);
+
+        requestAnimationFrame(() => {
+            setTimeout( () => {
+                modal.classList.toggle('active');
+                if (ttl!==0) {
+                    requestAnimationFrame(() => {
+                        setTimeout(() => {
+                                modal.classList.toggle('active');
+                            }, ttl)
+                    });
+                }
+            }, delay);
+        });
+    }
 }
 
 

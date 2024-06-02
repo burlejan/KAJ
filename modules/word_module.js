@@ -5,7 +5,7 @@
 export class Game_logic {
 
     constructor() {
-        this._getWords();
+        this._getWords().then(console.log);
     }
 
     static createWithSecretWord(secretWord) {
@@ -23,114 +23,61 @@ export class Game_logic {
         return this.secretWord;
     }
 
-    _getWords(){
-        //todo get words.txt from ?file?
-        fetch("/words.txt").then();
-        
-        this.words = ["apple", "lemon", "melon", "grape", "peach", "beach"];
+    async _getWords(){
+        let words = localStorage.getItem("wordle_words");
+        if (words == null) {
+            try {
+                const res = await fetch("/words.txt");
+                if (!res.ok) {
+                    alert(`Error word file returned status: ${res.statusText}`);
+                    throw new Error('Failed to fetch words from the server.');
+                }
+                const text = await res.text();
+                let arr = text.split('\n');
+                words = JSON.stringify(arr)
+                localStorage.setItem("wordle_words", words);
+            } catch (error) {
+                console.error('Error fetching words:', error);
+                // Fallback to a default list of words if fetching fails
+                words = JSON.stringify(["apple", "lemon", "melon", "grape", "peach", "beach"]);
+            }
+
+        }
+        this.words = JSON.parse(words);
+        // this.words = ["apple", "lemon", "melon", "grape", "peach", "beach"];
         this.secretWord = this.words[Math.floor(Math.random() * this.words.length)];
     }
 
     checkWord(guess) {
-        if (guess === this.secretWord) {
+        if (this.words.includes(guess)) {
             let result = [];
             for (let i = 0; i < this.secretWord.length; i++) {
-                result.push([guess[i], 'correct'])
+                result.push([guess[i], 'absent'])
             }
-            return [[true, true], result];
-        } else {
-            if (this.words.includes(guess)) {
-                let result = [];
-                for (let i = 0; i < this.secretWord.length; i++) {
-                    result.push([guess[i], 'absent'])
+
+            const secretCount = {};
+            const guessCount = {};
+
+            for (let i = 0; i < guess.length; i++) {
+                if (guess[i] === this.secretWord[i]) {
+                    result[i] = [guess[i], 'correct'];
+                } else {
+                    secretCount[this.secretWord[i]] = (secretCount[this.secretWord[i]] || 0) + 1;
+                    guessCount[guess[i]] = (guessCount[guess[i]] || 0) + 1;
                 }
-
-                const secretCount = {};
-                const guessCount = {};
-
-                for (let i = 0; i < guess.length; i++) {
-                    if (guess[i] === this.secretWord[i]) {
-                        result[i] = [guess[i], 'correct'];
-                    } else {
-                        secretCount[this.secretWord[i]] = (secretCount[this.secretWord[i]] || 0) + 1;
-                        guessCount[guess[i]] = (guessCount[guess[i]] || 0) + 1;
-                    }
-                }
-
-                for (let i = 0; i < guess.length; i++) {
-                    if (result[i][1] === 'correct') continue;
-                    if (secretCount[guess[i]]) {
-                        result[i] = [guess[i], 'present'];
-                        secretCount[guess[i]]--;
-                    }
-                }
-
-                return [[false, true], result];
             }
-            return [[false, false]];
+
+            for (let i = 0; i < guess.length; i++) {
+                if (result[i][1] === 'correct') continue;
+                if (secretCount[guess[i]]) {
+                    result[i] = [guess[i], 'present'];
+                    secretCount[guess[i]]--;
+                }
+            }
+
+            return [[guess===this.secretWord, true], result];
         }
+        return [[false, false]];
     }
 
 }
-
-
-
-
-
-// // List of possible words.txt
-// const words.txt = ["apple", "orange", "lemon", "melon", "banana", "grape", "peach", "cherry", "plum", "kiwi"];
-//
-// // Pick a random word from the list
-// let secretWord = words.txt[Math.floor(Math.random() * words.txt.length)];
-// let attemptsLeft = 6;
-// let guessedWord = "_____"; // Display placeholder
-//
-// // Function to check the guess and update game state
-// function checkGuess(guess) {
-//     guess = guess.toLowerCase().trim();
-//
-//     if (guess.length !== 5 || !/^[a-z]+$/.test(guess)) {
-//         return { message: "Please enter a valid 5-letter word.", isGameOver: false };
-//     }
-//
-//     if (attemptsLeft > 0) {
-//         attemptsLeft--;
-//
-//         if (guess === secretWord) {
-//             guessedWord = secretWord;
-//             return { message: "Congratulations! You guessed the word.", isGameOver: true };
-//         } else {
-//             let newGuessedWord = "";
-//             for (let i = 0; i < 5; i++) {
-//                 if (secretWord[i] === guess[i]) {
-//                     newGuessedWord += guess[i];
-//                 } else if (secretWord.includes(guess[i])) {
-//                     newGuessedWord += "?";
-//                 } else {
-//                     newGuessedWord += "_";
-//                 }
-//             }
-//             guessedWord = newGuessedWord;
-//
-//             if (attemptsLeft === 0) {
-//                 return { message: "Out of attempts! The word was: " + secretWord, isGameOver: true };
-//             } else {
-//                 return { message: "Incorrect guess. Attempts left: " + attemptsLeft, isGameOver: false };
-//             }
-//         }
-//     }
-//
-//     return { message: "", isGameOver: true }; // Game over state
-// }
-//
-// // Function to get the current state of the game
-// function getGameState() {
-//     return {
-//         guessedWord: guessedWord,
-//         attemptsLeft: attemptsLeft,
-//         secretWordLength: 5 // Assuming fixed word length of 5 letters
-//     };
-// }
-//
-// // Export the functions to be used as a module
-// export { checkGuess, getGameState };
