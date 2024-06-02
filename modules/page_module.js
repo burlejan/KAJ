@@ -5,8 +5,6 @@ const pointsForWin = 100;
 const pointsForCorrectLetter = 10;
 const pointsForPresentLetter = 5;
 
-// TODO deployment gitlab - viz martin cerny pages facebook
-
 import {Game_logic} from "./word_module.js";
 
 export class Page_generator {
