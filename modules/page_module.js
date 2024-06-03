@@ -367,11 +367,11 @@ export class Page_generator {
 
             keyboardDiv.innerHTML = result;
             let letters = keyboardDiv.querySelectorAll('.letter');
-            letters.forEach(l => l.addEventListener('mouseup', e => {
+            letters.forEach(l => l.onmouseup = e => {
                 if (e.target.classList.contains('letter')) {
                     this._handleKeyUp(e.target.id);
                 }
-            }));
+            });
         }
     }
 
