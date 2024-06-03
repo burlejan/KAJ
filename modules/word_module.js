@@ -27,7 +27,7 @@ export class Game_logic {
         let words = localStorage.getItem("wordle_words");
         if (words == null) {
             try {
-                const res = await fetch("/words.txt");
+                const res = await fetch("/KAJ/words.txt");
                 if (!res.ok) {
                     alert(`Error word file returned status: ${res.statusText}`);
                     throw new Error('Failed to fetch words from the server.');
