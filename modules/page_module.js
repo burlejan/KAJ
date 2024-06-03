@@ -274,7 +274,7 @@ export class Page_generator {
                             localStorage.setItem('current_score', this.score);
                             localStorage.setItem('active_game', this.isGame);
 
-                            this._showModalWindow("You " + win ? 'won': 'lost' + '!', 300);
+                            this._showModalWindow("You " + (win ? 'won': 'lost') + '!', 300);
                             requestAnimationFrame(() => {
                                 setTimeout(async () => {
                                     await this.renderScorePage();
@@ -415,7 +415,7 @@ export class Page_generator {
         // Get first "directory" from URL
         const url = new URL(window.location.href);
         const filteredSegments = url.pathname.split('/').filter(segment => segment.length > 0);
-        return filteredSegments.length > 0 ? filteredSegments[0] : null;
+        return filteredSegments.length > 1 ? filteredSegments[1] : null;
     }
 
     _checkBoardForCorrectGuess(board) {
@@ -444,7 +444,7 @@ export class Page_generator {
 
     _showModalWindow(string, delay, ttl = 0) {
         let modal = document.createElement('div');
-        modal.innerHTML = `<div class="modal-content"><h2>${string}!</h2></div>`;
+        modal.innerHTML = `<div class="modal-content"><h2>${string}</h2></div>`;
         modal.classList.add('modal');
         this.main.append(modal);
 
