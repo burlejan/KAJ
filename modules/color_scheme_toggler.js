@@ -4,7 +4,7 @@
 
 const toggle = document.querySelector('#theme_toggle');
 const toggleSpan = document.querySelector('#theme_toggle_span');
-toggle.addEventListener('click', toggleColorScheme)
+toggle.addEventListener('click', toggleColorScheme);
 
 function changeLabel() {
     // nastaveni popisku na tlacitku pro zmenu barevneho schematu

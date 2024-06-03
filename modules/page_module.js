@@ -107,6 +107,38 @@ export class Page_generator {
         });
     }
 
+    _showInfoModal() {
+        const html = `
+                <h2>Welcome to Wordle</h2>
+                <div class="text_left">
+                <p>Your task is to guess the five letter secret word.</p>
+                <ul>
+                    <li>You have 6 tries.</li>
+                    <li>Each guess must be a valid 5-letter word.</li>
+                    <li>The color of the tiles will change to show how close your guess was to the word.</li>
+                </ul>
+                <h3>Examples</h3>
+                <div class="board_row">
+                    <div tabindex="-1" class="board_letter letter correct" data-content="letter">l</div>
+                    <div tabindex="-1" class="board_letter letter absent" data-content="letter">e</div>
+                    <div tabindex="-1" class="board_letter letter" data-content="letter">m</div>
+                    <div tabindex="-1" class="board_letter letter present" data-content="letter">o</div>
+                    <div tabindex="-1" class="board_letter letter" data-content="letter">n</div>
+                </div>
+                <p><span class="bold">L</span> is in the word and in the correct spot.<br>
+                   <span class="bold">O</span> is in the word, but in a different spot.<br>
+                   <span class="bold">E</span> is not in the word.<br>
+                   <span class="bold">M</span> and <span class="bold">N</span> have not been colored so the difference is visible.
+                </p>
+                
+                </div>
+                
+                <input type="submit" value="Play" id="close_info" class="flex_end" onclick="document.querySelector('.modal:has(#close_info)').classList.toggle('active')">
+                `;
+
+        this._showModalWindow(html, 500, 0, true);
+    }
+
     async renderGamePage() {
         await this._applyPageTransition(() => {
             // Set history state for the game page
@@ -134,6 +166,11 @@ export class Page_generator {
                 <section class="single" id="keyboard">
                 </section>`;
 
+            const firstTimePlayer = localStorage.getItem('first_time_player')
+            if (firstTimePlayer == null) {
+                this._showInfoModal();
+                localStorage.setItem('first_time_player', 'yes'); // This value can be anything
+            }
             this._renderBoardAndKeyboard();
         });
     }
@@ -251,7 +288,11 @@ export class Page_generator {
                     localStorage.setItem('current_score', this.score);
 
                     if (win || this.currentBoard.length===6) { // Game ended in a win or a defeat
-                        this.score += pointsForWin * (6 - this.currentBoard.length + 1);
+                        let label = 'You lost!' ;
+                        if (win) {
+                            label = "You won!";
+                            this.score += pointsForWin * (6 - this.currentBoard.length + 1);
+                        }
                         let scoreTable = JSON.parse(localStorage.getItem('score_table'));
                         if (scoreTable==null) {
                             scoreTable = new Array(0);
@@ -273,7 +314,8 @@ export class Page_generator {
                         localStorage.setItem('current_score', this.score);
                         localStorage.setItem('active_game', this.isGame);
 
-                        this._showModalWindow("You " + (win ? 'won': 'lost') + '!', 300);
+
+                        this._showModalWindow(label, 300);
                         requestAnimationFrame(() => {
                             setTimeout(async () => {
                                 await this.renderScorePage();
@@ -372,6 +414,9 @@ export class Page_generator {
                     this._handleKeyUp(e.target.id);
                 }
             });
+            keyboardDiv.querySelector('svg').addEventListener('click', e => {
+                this._handleKeyUp("Backspace");
+            })
         }
     }
 
@@ -452,9 +497,12 @@ export class Page_generator {
         }
     }
 
-    _showModalWindow(string, delay, ttl = 0) {
+    _showModalWindow(string, delay, ttl = 0, html = false) {
         let modal = document.createElement('div');
-        modal.innerHTML = `<div class="modal-content"><h2>${string}</h2></div>`;
+        if (!html) {
+            string = `<h2>${string}</h2>`;
+        }
+        modal.innerHTML = `<div class="modal-content">${string}</div>`;
         modal.classList.add('modal');
         this.main.append(modal);
 

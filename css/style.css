@@ -127,6 +127,9 @@ main {
     margin: 0 20% 0 20%;
 }
 
+.bold {
+    font-weight: bold;
+}
 
 section.single {
     padding: 10px;
@@ -158,7 +161,7 @@ section.single h2 {
     font-size: 3em;
 }
 
-section input {
+section input, .modal input {
     color: inherit;
     border: 1px solid var(--border_clr);
     background-color: var(--inputBG_clr);
@@ -166,7 +169,7 @@ section input {
     padding: 2px;
 }
 
-section input[type='submit'] {
+section input[type='submit'], .modal [type='submit'] {
     padding: 5px;
 }
 
@@ -181,7 +184,7 @@ section label {
     justify-content: space-between;
 }
 
-section input:hover {
+section input:hover, .modal input:hover {
     background-color: var(--input_hover_clr);
 }
 
@@ -226,6 +229,11 @@ section input:hover {
     align-items: center;
     text-transform: capitalize;
 }
+.letter.example {
+    /*width:20px;*/
+    /*height: 20px;*/
+    align-self: flex-start;
+}
 .keyboard_row .keyboard_letter {
     border-radius: 0.3em;
     cursor: pointer;
@@ -254,7 +262,7 @@ section input:hover {
     align-self: flex-start;
 }
 
-#board .letter[data-content~='letter'] {
+.letter[data-content~='letter'] {
     border-width: 2px;
 }
 
@@ -282,6 +290,9 @@ section input:hover {
 
 #score {
     max-width: 400px;
+}
+.flex_end {
+    align-self: flex-end;
 }
 #submit_play_again {
     align-self: flex-end;
@@ -350,6 +361,8 @@ section input:hover {
 }
 
 .modal {
+    opacity: 0;
+    transform: translateY(100%);
     display: none; /* Hidden by default */
     position: fixed; /* Stay in place */
     z-index: 100; /* Sit on top */
@@ -363,7 +376,9 @@ section input:hover {
 }
 
 .modal-content {
-    background-color: #fefefe;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--BG_clr);
     margin: 15% auto; /* 15% from the top and centered */
     padding: 20px;
     border: 1px solid #888;
@@ -371,11 +386,32 @@ section input:hover {
     width: 80%; /* Could be more or less, depending on screen size */
     max-width: 400px;
     text-align: center;
+    color: var(--text_clr);
+
+    ul {
+        padding-inline-start: 20px;
+    }
 }
 
 .modal.active {
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity var(--transitionTime) ease, transform var(--transitionTime) ease;
     display: block;
 }
+
+
+.text_left {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+}
+
+.modal li {
+    text-align: left;
+}
+
+
 
 @media screen and (max-width: 500px){
     #keyboard .letter {
