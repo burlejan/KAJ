@@ -215,81 +215,85 @@ export class Page_generator {
         });
     }
 
-    addKeyUpListener() {
-        document.addEventListener('keyup', e => {
-            if (this.isGame) {
-                const letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
-                if (e.key === "Backspace") {
-                    if (this.currentWord.length > 0) {
-                        this.currentWord = this.currentWord.slice(0, -1);
-                        this._handleClick(document.querySelector(`#backspace`));
-                    }
-                    this._renderBoard();
+    _handleKeyUp(key) {
+        if (this.isGame) {
+            const letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
+            if (key === "Backspace") {
+                if (this.currentWord.length > 0) {
+                    this.currentWord = this.currentWord.slice(0, -1);
+                    this._handleClick(document.querySelector(`#backspace`));
+                }
+                this._renderBoard();
+                return;
+            }
+            if (letters.includes(key)) {
+                if (this.currentWord.length < 5) {
+                    this.currentWord += key;
+                    this._handleClick(document.querySelector(`#${key}`));
+                    this._renderBoard()
                     return;
                 }
-                if (letters.includes(e.key)) {
-                    if (this.currentWord.length < 5) {
-                        this.currentWord += e.key;
-                        this._handleClick(document.querySelector(`#${e.key}`));
-                        this._renderBoard()
-                        return;
+            }
+            if (key === "Enter" && this.currentWord.length === 5) {
+                this._handleClick(document.querySelector(`#enter`));
+
+                let [result, letters] = this.gamelogic.checkWord(this.currentWord);
+                let win = result[0];
+                if (result[1]) {
+                    this.currentBoard[this.currentBoard.length] = letters;
+                    localStorage.setItem('current_board', JSON.stringify(this.currentBoard));
+                    this.currentWord = '';
+
+                    for (const letter of letters) {
+                        this.keyboard.addClassToLetter(...letter);
+                        this._addScoreForLetter(letter[1]);
                     }
-                }
-                if (e.key === "Enter" && this.currentWord.length === 5) {
-                    this._handleClick(document.querySelector(`#enter`));
+                    localStorage.setItem('current_score', this.score);
 
-                    let [result, letters] = this.gamelogic.checkWord(this.currentWord);
-                    let win = result[0]; 
-                    if (result[1]) {
-                        this.currentBoard[this.currentBoard.length] = letters;
-                        localStorage.setItem('current_board', JSON.stringify(this.currentBoard));
-                        this.currentWord = '';
-
-                        for (const letter of letters) {
-                            this.keyboard.addClassToLetter(...letter);
-                            this._addScoreForLetter(letter[1]);
+                    if (win || this.currentBoard.length===6) { // Game ended in a win or a defeat
+                        this.score += pointsForWin * (6 - this.currentBoard.length + 1);
+                        let scoreTable = JSON.parse(localStorage.getItem('score_table'));
+                        if (scoreTable==null) {
+                            scoreTable = new Array(0);
                         }
-                        localStorage.setItem('current_score', this.score);
-
-                        if (win || this.currentBoard.length===6) { // Game ended in a win or a defeat
-                            this.score += pointsForWin * (6 - this.currentBoard.length + 1);
-                            let scoreTable = JSON.parse(localStorage.getItem('score_table'));
-                            if (scoreTable==null) {
-                                scoreTable = new Array(0);
-                            }
-                            scoreTable.push([this.currentPlayerName, this.score, new Date().toLocaleString()]);
-                            scoreTable.sort((a, b) => b[1] - a[1]);
-                            if (scoreTable.length > 10) {
-                                scoreTable.pop();
-                            }
-                            localStorage.setItem('score_table', JSON.stringify(scoreTable));
-
-                            this._renderBoardAndKeyboard()
-                            // Invalidate variables
-                            this.isGame = false;
-                            this.currentWord = null;
-                            this.score = 0;
-                            this.currentWord = [];
-                            this.currentPlayerName = '';
-                            localStorage.setItem('current_score', this.score);
-                            localStorage.setItem('active_game', this.isGame);
-
-                            this._showModalWindow("You " + (win ? 'won': 'lost') + '!', 300);
-                            requestAnimationFrame(() => {
-                                setTimeout(async () => {
-                                    await this.renderScorePage();
-                                }, 2000);
-                            });
-                            return;
+                        scoreTable.push([this.currentPlayerName, this.score, new Date().toLocaleString()]);
+                        scoreTable.sort((a, b) => b[1] - a[1]);
+                        if (scoreTable.length > 10) {
+                            scoreTable.pop();
                         }
+                        localStorage.setItem('score_table', JSON.stringify(scoreTable));
 
                         this._renderBoardAndKeyboard()
-                    } else {
-                        this._showModalWindow("Wrong word!", 0, 1000);
-                    }
-                }
+                        // Invalidate variables
+                        this.isGame = false;
+                        this.currentWord = null;
+                        this.score = 0;
+                        this.currentWord = [];
+                        this.currentPlayerName = '';
+                        localStorage.setItem('current_score', this.score);
+                        localStorage.setItem('active_game', this.isGame);
 
+                        this._showModalWindow("You " + (win ? 'won': 'lost') + '!', 300);
+                        requestAnimationFrame(() => {
+                            setTimeout(async () => {
+                                await this.renderScorePage();
+                            }, 2000);
+                        });
+                        return;
+                    }
+
+                    this._renderBoardAndKeyboard()
+                } else {
+                    this._showModalWindow("Wrong word!", 0, 1000);
+                }
             }
+
+        }
+    }
+
+    addKeyUpListener() {
+        document.addEventListener('keyup', e => {
+            this._handleKeyUp(e.key);
         });
     }
 
@@ -346,8 +350,8 @@ export class Page_generator {
         }
 
         if (last) {
-            result = this._getLetterBox("keyboard", this._getBackspaceSvg(), 'backspace', 'keyboard_large_letter') + result +
-                this._getLetterBox("keyboard", 'Enter', 'enter', 'keyboard_large_letter');
+            result = this._getLetterBox("keyboard", this._getBackspaceSvg(), 'Backspace', 'keyboard_large_letter') + result +
+                this._getLetterBox("keyboard", 'Enter', 'Enter', 'keyboard_large_letter');
         }
         return "<div class=\"keyboard_row\">" + result + "</div>";
     }
@@ -362,6 +366,11 @@ export class Page_generator {
             }
 
             keyboardDiv.innerHTML = result;
+            keyboardDiv.addEventListener('click', e => {
+                if (e.target.classList.contains('letter')) {
+                    this._handleKeyUp(e.target.id);
+                }
+            })
         }
     }
 
