@@ -71,7 +71,7 @@ export class Page_generator {
     async renderWelcomePage() {
         await this._applyPageTransition(() => {
             // Set history state for the welcome page
-            history.pushState({ page: 'welcome' }, 'Wordle - Welcome', '/');
+            history.pushState({ page: 'welcome' }, 'Wordle - Welcome', './');
             this.isGame = false
 
             this.main.innerHTML = `
@@ -110,7 +110,7 @@ export class Page_generator {
     async renderGamePage() {
         await this._applyPageTransition(() => {
             // Set history state for the game page
-            history.pushState({ page: 'game' }, 'Wordle - Game', '/game');
+            history.pushState({ page: 'game' }, 'Wordle - Game', './game');
 
             // New Game, when the game is loaded from storage game is already true
             if (!this.isGame) {
@@ -179,7 +179,7 @@ export class Page_generator {
     async renderScorePage() {
         await this._applyPageTransition(() => {
             // Set history state for the score page
-            history.pushState({ page: 'score' }, 'Wordle - Score', '/score');
+            history.pushState({ page: 'score' }, 'Wordle - Score', './score');
             this.isGame = false;
 
             let tableBody = this._getStatTableRows();
@@ -379,19 +379,19 @@ export class Page_generator {
         return str;
     }
 
-    handlePopState(event) {
+    async handlePopState(event) {
         // Handle history navigation
         const state = event.state;
         if (state) {
             if (state.page === 'welcome') {
-                this.renderWelcomePage();
+                await this.renderWelcomePage();
             } else if (state.page === 'game') {
-                this.renderGamePage();
+                await this.renderGamePage();
             } else if (state.page === 'score') {
-                this.renderScorePage();
+                await this.renderScorePage();
             }
         } else {
-            this.renderWelcomePage();
+            await this.renderWelcomePage();
         }
     }
 
