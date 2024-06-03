@@ -366,7 +366,7 @@ export class Page_generator {
             }
 
             keyboardDiv.innerHTML = result;
-            keyboardDiv.addEventListener('click', e => {
+            keyboardDiv.addEventListener('mouseup', e => {
                 if (e.target.classList.contains('letter')) {
                     this._handleKeyUp(e.target.id);
                 }
