@@ -19,7 +19,7 @@ export class Page_generator {
         localStorage.setItem('active_game', this.isGame);
         this.currentBoard = [];
         window.onpopstate = this.handlePopState.bind(this); // Listen to popstate event for history navigation
-        this.addKeyUpListener();
+        this._addKeyUpListener();
         this._renderPageByURL().then();
     }
 
@@ -91,6 +91,11 @@ export class Page_generator {
             const scoreButton = document.querySelector('#submit_score_page');
             const playerNameInput = document.querySelector('#player_name');
 
+            playerNameInput.addEventListener('keyup', (e) => {
+                if (e.key === 'Enter') {
+                    submitButton.click();
+                }
+            });
             scoreButton.addEventListener('click', (e) => {
                 e.preventDefault();
                 this.renderScorePage();
@@ -140,17 +145,24 @@ export class Page_generator {
     }
 
     async renderGamePage() {
+        if (this.currentPlayerName == null) {
+            await this.renderWelcomePage();
+            return;
+        }
         await this._applyPageTransition(() => {
             // Set history state for the game page
             history.pushState({ page: 'game' }, 'Wordle - Game', './game');
 
-            // New Game, when the game is loaded from storage game is already true
+            // New Game when going from start menu; when the game is loaded from storage this.isGame is already true
             if (!this.isGame) {
                 this.currentBoard = [];
                 this.keyboard = new Keyboard();
                 this.score = 0;
                 this.gamelogic = new Game_logic();
-                this.secretWord = this.gamelogic.getSecretWord();
+                // Wait for the secret word to be fetched
+                setTimeout(() => {
+                    this.secretWord = this.gamelogic.getSecretWord();
+                }, 1000);
             }
 
             this.isGame = true;
@@ -288,10 +300,12 @@ export class Page_generator {
                     localStorage.setItem('current_score', this.score);
 
                     if (win || this.currentBoard.length===6) { // Game ended in a win or a defeat
-                        let label = 'You lost!' ;
+                        let label;
                         if (win) {
                             label = "You won!";
                             this.score += pointsForWin * (6 - this.currentBoard.length + 1);
+                        } else {
+                            label = `You lost!<br>Your word was: <span class="bold red">${this.secretWord}</span>`;
                         }
                         let scoreTable = JSON.parse(localStorage.getItem('score_table'));
                         if (scoreTable==null) {
@@ -311,11 +325,13 @@ export class Page_generator {
                         this.score = 0;
                         this.currentWord = [];
                         this.currentPlayerName = '';
+                        this.currentBoard = [];
+                        localStorage.setItem('current_board', JSON.stringify(this.currentBoard));
                         localStorage.setItem('current_score', this.score);
                         localStorage.setItem('active_game', this.isGame);
 
 
-                        this._showModalWindow(label, 300);
+                        this._showModalWindow(label, 300, 2000);
                         requestAnimationFrame(() => {
                             setTimeout(async () => {
                                 await this.renderScorePage();
@@ -326,14 +342,14 @@ export class Page_generator {
 
                     this._renderBoardAndKeyboard()
                 } else {
-                    this._showModalWindow("Wrong word!", 0, 1000);
+                    this._showModalWindow("Wrong word!", 0, 750);
                 }
             }
 
         }
     }
 
-    addKeyUpListener() {
+    _addKeyUpListener() {
         document.addEventListener('keyup', e => {
             this._handleKeyUp(e.key);
         });

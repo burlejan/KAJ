@@ -20,3 +20,6 @@ Hra obsahuje celkem tři obrazovky.
 3) Statistiky
    - Na stránce se statistikami se zobrazuje deset nejlepších hráčů a jejich skóre.
 
+## Framework
+
+Používám framework vanilla.js.
